@@ -1,18 +1,6 @@
-# 第一天：
-
-创建文件的命令
-
-```shell
- nest g module user --createUserModule
- nest g controller user --no-spec   --createUserController
- nest g service user --no-spec  --createUserSreice
-```
 
 
-
-# 第二天：
-
-### 一文带你搞定Nestjs项目中的配置文件(四种方案)！
+# 一文带你搞定Nestjs项目中的配置文件(四种方案)！
 
 （妈妈再也不用担心我的学习了！认准汪枫，用最详细的步骤和保姆式教学为你答疑解惑）
 
@@ -744,6 +732,3 @@ export class AppModule {}
     自定义的校验第三方包`class-validator`这里只是冰山一角，后面在学习数据验证的时候还会使用到它；
 
   
-
-
-
