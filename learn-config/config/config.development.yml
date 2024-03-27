@@ -1,0 +1,10 @@
+http:
+  host: 'localhostDEV'
+
+db:
+  postgres:
+    url: 'this is development postgres url'
+    database: 'yaml-dbDEV'
+
+  sqlite:
+    database: 'sqlite.dbDEV'

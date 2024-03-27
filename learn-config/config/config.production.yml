@@ -1,0 +1,10 @@
+http:
+  host: 'localhostPRO'
+
+db:
+  postgres:
+    url: 'this is production postgres url'
+    database: 'yaml-dbPRO'
+
+  sqlite:
+    database: 'sqlite.dbPRO'
