@@ -560,11 +560,11 @@ export class AppController {
 
   ```bash
   [下午7:33:38] Found 0 errors. Watching for file changes.
-
+  
   /Users/macos/Projects/nestjs/nestjs-common-template/node_modules/_@nestjs_config@0.6.3@@nestjs/config/dist/config.module.js:61
                   throw new Error(`Config validation error: ${error.message}`);
                   ^
-
+  
   Error: Config validation error: "PORT" must be a number
       at Function.forRoot (/Users/macos/Projects/nestjs/nestjs-common-template/node_modules/_@nestjs_config@0.6.3@@nestjs/config/dist/config.module.js:61:23)
       at Object.<anonymous> (/Users/macos/Projects/nestjs/nestjs-common-template/dist/app.module.js:21:35)
@@ -591,7 +591,7 @@ export class AppController {
   /Users/macos/Projects/nestjs/nestjs-common-template/node_modules/_@nestjs_config@0.6.3@@nestjs/config/dist/config.module.js:61
                   throw new Error(`Config validation error: ${error.message}`);
                   ^
-
+  
   Error: Config validation error: "DATABASE_USER" is not allowed to be empty
       at Function.forRoot (/Users/macos/Projects/nestjs/nestjs-common-template/node_modules/_@nestjs_config@0.6.3@@nestjs/config/dist/config.module.js:61:23)
       at Object.<anonymous> (/Users/macos/Projects/nestjs/nestjs-common-template/dist/app.module.js:21:35)
@@ -696,9 +696,9 @@ export class AppModule {}
   import { AppService } from "./app.service";
   import { ConfigModule } from "@nestjs/config";
   import { validate } from "./env.validation";
-
+  
   const envPath = `.env.${process.env.NODE_ENV || "development"}`;
-
+  
   @Module({
     imports: [
       ConfigModule.forRoot({
@@ -723,3 +723,76 @@ export class AppModule {}
   配置灵活，而且可以配合验证工具`Joi`进行参数的验证（推荐）
 
   自定义的校验第三方包`class-validator`这里只是冰山一角，后面在学习数据验证的时候还会使用到它；
+
+
+
+# 第三天
+
+### 1.使用typeorm并连接数据库
+
+安装依赖：
+
+* @nestjs/typeorm
+* mysql2
+* typeorm
+
+在app.module.ts中配置使用typeorm去连接数据库
+
+```ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as Joi from 'joi';
+import { Env } from '../types/env.type';
+import { User } from 'entitys/user.entitys';
+const envPath = `.env.${process.env.NODE_ENV || 'development'}`;
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: envPath,
+      // 这里新增.env的文件解析
+      load: [() => dotenv.config({ path: '.env' })],
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production')
+          .default('development'),
+        DB_PORT: Joi.number().default(3306),
+        DB_URL: Joi.string().domain(),
+        DB_HOST: Joi.string().ip(),
+      }),
+    }),
+    //连接数据
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        ({
+          type: configService.get(Env.DB_TYPE),
+          host: configService.get(Env.DB_HOST),
+          port: configService.get(Env.DB_PORT),
+          username: configService.get(Env.DB_USERNAME),
+          password: configService.get(Env.DB_PASSWORD),
+          database: configService.get(Env.DB_NAME),
+          //这里是导入的typeorm模块用于帮助我们创建数据库
+          entities: [User],
+          synchronize: true,
+          logging: true, //打印日志
+        } as TypeOrmModuleOptions),
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+### 2.使用typeorm创建数据库
+
+你只需要创建指定的entities 导入进来就可以了
+
+### 3.实现用户的CRUD
+
